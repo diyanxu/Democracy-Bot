@@ -1,16 +1,29 @@
 # bot.py
 import os
-
 import discord
+import random
+
+from discord.ext import commands
 from dotenv import load_dotenv
+
 
 load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
 server = os.getenv('DISCORD_GUILD')
 
+
+bot = commands.Bot(command_prefix = '.')
 client = discord.Client()
 
-
+@bot.command(name = 'flip')
+async def coin_flip(message):
+    number = random.randint(0, 100)
+    if number == 0 or number == 100:
+        await message.channel.send('The coin landed on it\'s side, How unfortunate you owe me $1000')
+    elif number <= 51:
+        await message.channel.send('The coin landed on Heads')
+    else:
+        await message.channel.send('The coin landed on Tails')
 
 # First active function once bot starts
 @client.event
@@ -35,11 +48,13 @@ async def on_message(message):
         return
     
     # TODO: This is currently hard coded should change so it reads from a file
+    # This DOES NOT work with emotes which is big problem
     toxic = {':(', ':frowning:', ':sob:', ':c', ':C', ':cry:', ':triumph:', '>:c', '>:C', ':angry:'}
     
-    print(message.content)
+    print("Messaged typed: " + message.content)
     for response in toxic:
         if message.content == response:
             await message.channel.send('Stop being toxic!')
 
-client.run(token)
+bot.run(token)
+client.run(token) 
