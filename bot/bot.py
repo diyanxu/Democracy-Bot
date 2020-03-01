@@ -2,28 +2,18 @@
 import os
 import discord
 import random
+import time
+import asyncio
 
 from discord.ext import commands
 from dotenv import load_dotenv
-
 
 load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
 server = os.getenv('DISCORD_GUILD')
 
-
-bot = commands.Bot(command_prefix = '.')
 client = discord.Client()
-
-@bot.command(name = 'flip')
-async def coin_flip(message):
-    number = random.randint(0, 100)
-    if number == 0 or number == 100:
-        await message.channel.send('The coin landed on it\'s side, How unfortunate you owe me $1000')
-    elif number <= 51:
-        await message.channel.send('The coin landed on Heads')
-    else:
-        await message.channel.send('The coin landed on Tails')
+annieId = 416352129897463819
 
 # First active function once bot starts
 @client.event
@@ -44,17 +34,28 @@ async def on_ready():
 # First replay to message command
 @client.event
 async def on_message(message):
+
     if message.author == client.user:
         return
-    
+    # Try catch to open file and log messages
+    print(message.content)
+    try:
+        with open("msg_log.txt", "a") as f:
+            f.write(f"User: {message.author}, Message: {message.content}, Time: {int(time.time())}\n")
+            print("Message logged")
+    except Exception as e:
+        print(e)
+
+
     # TODO: This is currently hard coded should change so it reads from a file
     # This DOES NOT work with emotes which is big problem
-    toxic = {':(', ':frowning:', ':sob:', ':c', ':C', ':cry:', ':triumph:', '>:c', '>:C', ':angry:'}
-    
-    print("Messaged typed: " + message.content)
-    for response in toxic:
-        if message.content == response:
-            await message.channel.send('Stop being toxic!')
+    toxic = {':(', '😦', '😭', ':c', ':C', '😢', '😤', '>:c', '>:C', '😠', 'fortnite'}
 
-bot.run(token)
-client.run(token) 
+    # Checks if annie is the user
+    if message.author.id == annieId:
+        for response in toxic:
+            if response in message.content:
+                await message.channel.send(f'Stop being toxic!')
+                break
+
+client.run(token)
